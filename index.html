@@ -778,11 +778,11 @@ const STYLE_URL='https://tiles.openfreemap.org/styles/positron';
 const LAYER_DEFS={
   wind:{label:'Wind',icon:ICONS.wind,mode:'forecast',field:'wind_speed_10m',unit:()=>sU(),conv:S,stops:[[0,[70,120,200,0]],[10,[70,160,220,.25]],[25,[60,200,150,.35]],[40,[240,220,80,.42]],[60,[255,150,60,.5]],[85,[255,70,60,.55]],[120,[190,60,230,.6]]],ticks:[0,25,50,85,120]},
   temp:{label:'Temp',icon:'<path d="M14 14.8V4a2 2 0 0 0-4 0v10.8a4 4 0 1 0 4 0z"/>',mode:'forecast',field:'temperature_2m',unit:()=>tU(),conv:T,stops:[[18,[80,110,220,.5]],[24,[60,190,200,.5]],[28,[120,210,110,.5]],[31,[250,225,80,.55]],[34,[255,150,60,.58]],[38,[240,60,55,.62]]],ticks:[18,24,28,31,34,38]},
-  rain:{label:'Rain',icon:ICONS.rain,mode:'forecast',field:'precipitation',unit:()=>mU()+'/h',conv:M,stops:[[0,[90,160,255,0]],[.2,[110,180,255,.35]],[1,[50,130,255,.5]],[3,[40,200,140,.55]],[7,[250,220,70,.6]],[15,[255,90,60,.65]],[30,[200,60,230,.7]]],ticks:[0,1,3,7,15,30]},
+  rain:{label:'Rain',icon:ICONS.rain,mode:'forecast',field:'precipitation',unit:()=>mU()+'/h',conv:M,stops:[[0,[90,160,255,0]],[.15,[90,160,255,0]],[.5,[110,180,255,.38]],[1.5,[50,130,255,.52]],[3,[40,200,140,.55]],[7,[250,220,70,.6]],[15,[255,90,60,.65]],[30,[200,60,230,.7]]],ticks:[0,1,3,7,15,30]},
   cloud:{label:'Clouds',icon:'<path d="M7 18a4.5 4.5 0 0 1 .5-9A6 6 0 0 1 19 11a3.5 3.5 0 0 1-.5 7z"/>',mode:'forecast',field:'cloud_cover',unit:()=>'%',conv:v=>v,stops:[[0,[255,255,255,0]],[50,[220,230,245,.25]],[100,[235,240,250,.62]]],ticks:[0,25,50,75,100]},
   radar:{label:'Radar',icon:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12L19 7"/>',mode:'radar',stops:[],ticks:[]}
 };
-const GRID={la0:9.4,la1:15.4,lo0:118.5,lo1:125.5,nla:9,nlo:10};
+const GRID={la0:7.5,la1:17.5,lo0:116.5,lo1:128,nla:11,nlo:12};
 const gdLat=(GRID.la1-GRID.la0)/(GRID.nla-1),gdLon=(GRID.lo1-GRID.lo0)/(GRID.nlo-1);
 const PLAY_SVG='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"/></svg>';
 const PAUSE_SVG='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
