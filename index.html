@@ -958,7 +958,7 @@ function ringPolygon(lat,lon,km){
 async function initMap(){
   if(!window.maplibregl||RADAR.map)return;
   heatCv=$('#heatCv');partCv=$('#partCv');hctx=heatCv.getContext('2d');pctx=partCv.getContext('2d');
-  const m=RADAR.map=new maplibregl.Map({container:'map',style:STYLE_URL,center:[122.1,12.45],zoom:innerWidth<600?6:7,minZoom:5,maxZoom:10.5,attributionControl:false,dragRotate:false,pitchWithRotate:false});
+  const m=RADAR.map=new maplibregl.Map({container:'map',style:STYLE_URL,center:[122.1,12.45],zoom:innerWidth<600?6:7,minZoom:6,maxZoom:10.5,maxBounds:[[117,8],[127.5,17]],attributionControl:false,dragRotate:false,pitchWithRotate:false});
   m.touchZoomRotate.disableRotation();
   m.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
   m.addControl(new maplibregl.AttributionControl({compact:true,customAttribution:'Radar © RainViewer · Data © Open-Meteo'}),'bottom-right');
