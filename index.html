@@ -271,7 +271,7 @@ html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
         </div>
         <div>
           <h2 id="sTitle">Watching</h2>
-          <p id="sSub">Checking the next 48 hours against your rules.</p>
+          <p id="sSub">Checking the next 4 days against your rules.</p>
         </div>
       </div>
       <ul class="nowalerts" id="nowAlerts"></ul>
@@ -293,7 +293,7 @@ html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 
     <section class="panel full" id="mapPanel">
       <h3>Weather map</h3>
-      <p class="hint" id="mapHint">Switch layers, scrub through the next 48 hours, or tap anywhere on the map for a point forecast.</p>
+      <p class="hint" id="mapHint">Switch layers, scrub through the next 4 days, or tap anywhere on the map for a point forecast.</p>
       <div class="mapbox">
         <div id="map" role="application" aria-label="Interactive weather map centered on Odiongan"></div>
         <canvas id="heatCv" aria-hidden="true"></canvas>
@@ -307,13 +307,13 @@ html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 
     <section class="panel">
       <h3>Alert rules</h3>
-      <p class="hint">RedZone scans the 48‑hour forecast every 10 minutes and warns you before a rule is crossed.</p>
+      <p class="hint">RedZone scans the 4-day forecast every 10 minutes and warns you before a rule is crossed.</p>
       <div id="notice"></div>
       <div class="rules" id="rules"></div>
     </section>
 
     <section class="panel">
-      <h3>The week ahead</h3>
+      <h3>The next 4 days</h3>
       <p class="hint">Highs, lows and precipitation odds.</p>
       <div class="days" id="days"></div>
     </section>
@@ -430,7 +430,7 @@ async function load(silent){
     '&current=temperature_2m,apparent_temperature,relative_humidity_2m,is_day,weather_code,wind_speed_10m,wind_gusts_10m,pressure_msl,precipitation,uv_index,cloud_cover'+
     '&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,wind_gusts_10m,uv_index'+
     '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max'+
-    '&timezone=auto&forecast_days=7&forecast_hours=48&wind_speed_unit=kmh';
+    '&timezone=auto&forecast_days=4&forecast_hours=96&wind_speed_unit=kmh';
   const a='https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+lat+'&longitude='+lon+'&hourly=us_aqi&timezone=auto&forecast_days=2';
   try{
     const [w,q]=await Promise.all([fetch(f).then(r=>{if(!r.ok)throw 0;return r.json()}),fetch(a).then(r=>r.ok?r.json():null).catch(()=>null)]);
@@ -576,7 +576,7 @@ function paintStatus(found){
   const worst=found.some(a=>a.rule.sev==='danger'&&a.ahead<=12)?'danger':found.length?'warn':'ok';
   card.dataset.level=worst;
   $('#sTitle').textContent=worst==='ok'?'All clear':worst==='danger'?'Take cover soon':'Heads up';
-  $('#sSub').textContent=worst==='ok'?'Nothing crosses your rules in the next 48 hours.':found.length+(found.length>1?' alerts':' alert')+' from your rules in the next 48 hours.';
+  $('#sSub').textContent=worst==='ok'?'Nothing crosses your rules in the next 4 days.':found.length+(found.length>1?' alerts':' alert')+' from your rules in the next 4 days.';
   $('#nowAlerts').innerHTML=found.map(a=>`<li><span class="dot" style="background:${a.rule.sev==='danger'?'var(--danger)':'var(--warn)'}"></span><div><strong>${a.rule.name}</strong> — ${a.text}<em>${a.label}</em></div></li>`).join('');
   const total=found.length+(window.__nws||0);
   document.title=(total?'('+total+') ':'')+document.title.replace(/^\(\d+\)\s/,'');
@@ -798,7 +798,7 @@ function colorAt(stops,v){
 async function loadGrid(){
   const lats=[],lons=[];
   for(let i=0;i<GRID.nla;i++)for(let j=0;j<GRID.nlo;j++){lats.push((GRID.la0+i*gdLat).toFixed(3));lons.push((GRID.lo0+j*gdLon).toFixed(3))}
-  const url='https://api.open-meteo.com/v1/forecast?latitude='+lats.join(',')+'&longitude='+lons.join(',')+'&hourly=temperature_2m,cloud_cover,precipitation,wind_speed_10m,wind_direction_10m&forecast_hours=48&timezone=auto&wind_speed_unit=kmh';
+  const url='https://api.open-meteo.com/v1/forecast?latitude='+lats.join(',')+'&longitude='+lons.join(',')+'&hourly=temperature_2m,cloud_cover,precipitation,wind_speed_10m,wind_direction_10m&forecast_hours=96&timezone=auto&wind_speed_unit=kmh';
   const r=await fetch(url).then(r=>{if(!r.ok)throw 0;return r.json()});
   const arr=Array.isArray(r)?r:[r];
   WX.grid={times:arr[0].hourly.time,loc:arr.map(o=>o.hourly)};
@@ -916,7 +916,7 @@ function playPause(){WX.timer?stopPlay():startPlay()}
 function startPlay(){
   $('#mplay').innerHTML=PAUSE_SVG;$('#mplay').setAttribute('aria-label','Pause');
   const radar=LAYER_DEFS[WX.layer].mode==='radar';
-  WX.timer=setInterval(()=>{const sl=$('#mslide'),n=+sl.max+1,cur=radar?RADAR.i:WX.t,nx=(cur+1)%n;sl.value=nx;setTime(nx)},radar?550:450);
+  WX.timer=setInterval(()=>{const sl=$('#mslide'),n=+sl.max+1,cur=radar?RADAR.i:WX.t,nx=(cur+1)%n;sl.value=nx;setTime(nx)},radar?550:260);
 }
 function stopPlay(){clearInterval(WX.timer);WX.timer=null;$('#mplay').innerHTML=PLAY_SVG;$('#mplay').setAttribute('aria-label','Play')}
 
