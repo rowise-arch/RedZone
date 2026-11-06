@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>RedZone — Odiongan, Romblon weather watch &amp; alerts</title>
 <meta name="description" content="Live weather monitoring and alerts for Odiongan, Romblon, Philippines.">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -174,18 +174,20 @@ footer a{color:var(--mute)}
 
 .mapbox{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);height:min(72vh,640px);min-height:420px;background:#0a1226;isolation:isolate}
 #map{position:absolute;inset:0;background:#0a1226}
-#heatCv,#partCv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:450}
-#partCv{z-index:460}
-.leaflet-container{font-family:var(--sans)}
-.leaflet-control-attribution{background:rgba(8,12,22,.7)!important;color:var(--mute)!important;font-size:10px}
-.leaflet-control-attribution a{color:var(--mute)!important}
-.leaflet-control-zoom{border:0!important;margin:12px!important;margin-top:64px!important}
-.leaflet-control-zoom a{background:rgba(10,15,27,.82)!important;color:var(--ink)!important;border:1px solid var(--line)!important;width:38px!important;height:38px!important;line-height:36px!important;backdrop-filter:blur(14px)}
-.leaflet-popup-content-wrapper{background:rgba(10,15,27,.94);color:var(--ink);border:1px solid var(--line);border-radius:18px;backdrop-filter:blur(16px)}
-.leaflet-popup-tip{background:rgba(10,15,27,.94)}
-.leaflet-popup-content{margin:14px 16px;font-size:13.5px;line-height:1.5}
-.leaflet-popup-content b{font-family:var(--serif);font-weight:400;font-size:30px;display:block;line-height:1}
-.leaflet-popup-close-button{color:var(--mute)!important}
+#heatCv,#partCv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+#partCv{z-index:1}
+.maplibregl-map{font-family:var(--sans)}
+.maplibregl-ctrl-top-right{margin-top:56px}
+.maplibregl-ctrl-group{background:rgba(10,15,27,.82)!important;border:1px solid var(--line);border-radius:14px!important;box-shadow:none!important;backdrop-filter:blur(14px)}
+.maplibregl-ctrl-group button{width:40px!important;height:40px!important;border-color:var(--line)!important}
+.maplibregl-ctrl-icon{filter:invert(1)}
+.maplibregl-ctrl-attrib{background:rgba(8,12,22,.7)!important;color:var(--mute)!important;font-size:10px}
+.maplibregl-ctrl-attrib a{color:var(--mute)!important}
+.maplibregl-ctrl-attrib-button{filter:invert(1)}
+.maplibregl-popup-content{background:rgba(10,15,27,.95)!important;color:var(--ink);border:1px solid var(--line);border-radius:18px!important;padding:14px 16px!important;font-size:13.5px;line-height:1.5;box-shadow:0 14px 40px rgba(0,0,0,.5)!important}
+.maplibregl-popup-content b{font-family:var(--serif);font-weight:400;font-size:30px;display:block;line-height:1}
+.maplibregl-popup-tip{border-top-color:rgba(10,15,27,.95)!important;border-bottom-color:rgba(10,15,27,.95)!important}
+.maplibregl-popup-close-button{color:var(--mute);font-size:18px;padding:4px 8px}
 .layers{position:absolute;top:12px;left:12px;right:12px;z-index:500;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px}
 .layers::-webkit-scrollbar{display:none}
 .layers button{flex:none;display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:rgba(10,15,27,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--mute);border-radius:999px;padding:0 16px;height:40px;font-size:13px;font-weight:600;cursor:pointer;transition:all .25s}
@@ -199,8 +201,7 @@ footer a{color:var(--mute)}
 .maplegend i{display:block;height:7px;border-radius:7px;margin:6px 0 4px}
 .maplegend div{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}
 .maplegend strong{color:var(--ink);font-weight:600;font-size:12px}
-.basetiles{filter:invert(1) hue-rotate(200deg) brightness(.9) contrast(.85) saturate(.6)}
-.pin{width:18px;height:18px;border-radius:50%;background:#ff6b5e;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.pin{width:18px;height:18px;border-radius:50%;background:#ff6b5e;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5);cursor:pointer}
 /* mobile-first refinements */
 html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 .btn,.seg button,.chip{min-height:44px;touch-action:manipulation}
@@ -335,7 +336,7 @@ html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
 /* ================= state ================= */
 const $=s=>document.querySelector(s);
@@ -759,9 +760,10 @@ $('#install').onclick=async()=>{
 };
 
 
-/* ================= weather map (Windy-style) ================= */
+/* ================= weather map (MapLibre GL, Windy-style) ================= */
 const RADAR={map:null,layers:[],frames:[],i:0};
 const WX={grid:null,layer:store.get('layer','wind'),t:0,timer:null,particles:[],raf:0,moving:false,w:0,h:0};
+const STYLE_URL='https://tiles.openfreemap.org/styles/positron';
 const LAYER_DEFS={
   wind:{label:'Wind',icon:ICONS.wind,mode:'forecast',field:'wind_speed_10m',unit:()=>sU(),conv:S,stops:[[0,[70,120,200,0]],[10,[70,160,220,.25]],[25,[60,200,150,.35]],[40,[240,220,80,.42]],[60,[255,150,60,.5]],[85,[255,70,60,.55]],[120,[190,60,230,.6]]],ticks:[0,25,50,85,120]},
   temp:{label:'Temp',icon:'<path d="M14 14.8V4a2 2 0 0 0-4 0v10.8a4 4 0 1 0 4 0z"/>',mode:'forecast',field:'temperature_2m',unit:()=>tU(),conv:T,stops:[[18,[80,110,220,.5]],[24,[60,190,200,.5]],[28,[120,210,110,.5]],[31,[250,225,80,.55]],[34,[255,150,60,.58]],[38,[240,60,55,.62]]],ticks:[18,24,28,31,34,38]},
@@ -820,13 +822,13 @@ function sizeCanvases(){
 function drawHeat(){
   hctx.clearRect(0,0,WX.w,WX.h);
   const def=LAYER_DEFS[WX.layer];
-  if(!WX.grid||def.mode!=='forecast')return;
+  if(!WX.grid||def.mode!=='forecast'||!RADAR.map)return;
   const m=RADAR.map,st=8,cw=Math.ceil(WX.w/st),ch=Math.ceil(WX.h/st);
   const off=document.createElement('canvas');off.width=cw;off.height=ch;
   const octx=off.getContext('2d'),img=octx.createImageData(cw,ch);
   const boost=WX.layer==='wind'?.8:1;
   for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){
-    const ll=m.containerPointToLatLng([x*st+st/2,y*st+st/2]);
+    const ll=m.unproject([x*st+st/2,y*st+st/2]);
     const v=sample(def.field,WX.t,ll.lat,ll.lng);if(v==null)continue;
     const c=colorAt(def.stops,v),k=(y*cw+x)*4;
     img.data[k]=c[0];img.data[k+1]=c[1];img.data[k+2]=c[2];img.data[k+3]=c[3]*255*boost;
@@ -842,12 +844,12 @@ function seedParticles(){
 function stepParticles(){
   WX.raf=requestAnimationFrame(stepParticles);
   if(!WX.grid||WX.layer!=='wind'||WX.moving||!RADAR.map)return;
-  const m=RADAR.map,k=.018*Math.pow(2,m.getZoom()-7);
+  const m=RADAR.map,k=.018*Math.pow(2,m.getZoom()+1-7);
   pctx.globalCompositeOperation='destination-out';pctx.fillStyle='rgba(0,0,0,.07)';pctx.fillRect(0,0,WX.w,WX.h);
   pctx.globalCompositeOperation='source-over';pctx.lineWidth=1.3;
   for(const p of WX.particles){
     if(p.age--<=0){p.x=Math.random()*WX.w;p.y=Math.random()*WX.h;p.age=40+Math.random()*60;continue}
-    const ll=m.containerPointToLatLng([p.x,p.y]),w=windVec(WX.t,ll.lat,ll.lng);
+    const ll=m.unproject([p.x,p.y]),w=windVec(WX.t,ll.lat,ll.lng);
     if(!w){p.age=0;continue}
     const nx=p.x+w.u*k,ny=p.y-w.v*k;
     pctx.strokeStyle='rgba(255,255,255,'+Math.min(.9,.35+w.sp/70)+')';
@@ -869,12 +871,16 @@ function renderLegend(){
   const fmt=v=>{const x=def.conv(v);return x>=10||WX.layer==='temp'||x===0?Math.round(x):x.toFixed(x<1?2:1)};
   el.innerHTML='<strong>'+def.label+' · '+def.unit()+'</strong><i style="background:linear-gradient(90deg,'+grad+')"></i><div>'+def.ticks.map(v=>'<span>'+fmt(v)+'</span>').join('')+'</div>';
 }
+function radarOpacity(k,v){
+  const m=RADAR.map;if(m&&RADAR.layers[k]&&m.getLayer(RADAR.layers[k]))m.setPaintProperty(RADAR.layers[k],'raster-opacity',v);
+}
+function hideRadar(){RADAR.layers.forEach((_,k)=>radarOpacity(k,0))}
 function setLayer(id,keep){
   WX.layer=id;if(!keep)store.set('layer',id);
   stopPlay();
   const def=LAYER_DEFS[id],sl=$('#mslide');
   $('#layers').querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',b.dataset.l===id));
-  RADAR.layers.forEach(l=>l.setOpacity(0));
+  hideRadar();
   clearParticles();if(hctx)hctx.clearRect(0,0,WX.w,WX.h);
   if(def.mode==='radar'){
     sl.max=Math.max(RADAR.frames.length-1,0);
@@ -887,7 +893,7 @@ function setLayer(id,keep){
 }
 function showRadarFrame(i){
   if(!RADAR.frames.length)return;
-  RADAR.i=i;RADAR.layers.forEach((l,k)=>l.setOpacity(k===i?.78:0));
+  RADAR.i=i;RADAR.layers.forEach((_,k)=>radarOpacity(k,k===i?.8:0));
   $('#mslide').value=i;
   $('#mtime').textContent=new Date(RADAR.frames[i].time*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
 }
@@ -904,48 +910,92 @@ function startPlay(){
 function stopPlay(){clearInterval(WX.timer);WX.timer=null;$('#mplay').innerHTML=PLAY_SVG;$('#mplay').setAttribute('aria-label','Play')}
 
 async function pointForecast(ll){
-  const pop=L.popup({offset:[0,-4]}).setLatLng(ll).setContent('<span style="color:var(--mute)">Reading forecast…</span>').openOn(RADAR.map);
+  const pop=new maplibregl.Popup({offset:10,maxWidth:'260px'}).setLngLat(ll).setHTML('<span style="color:var(--mute)">Reading forecast…</span>').addTo(RADAR.map);
   try{
     const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+ll.lat.toFixed(3)+'&longitude='+ll.lng.toFixed(3)+'&current=temperature_2m,weather_code,wind_speed_10m,wind_gusts_10m&daily=precipitation_probability_max&timezone=auto&forecast_days=1').then(r=>r.json());
     const c=r.current;
-    pop.setContent('<b>'+r0(T(c.temperature_2m))+tU()+'</b>'+describe(c.weather_code)+'<br>Wind '+r0(S(c.wind_speed_10m))+' '+sU()+', gusts '+r0(S(c.wind_gusts_10m))+'<br>Rain chance today '+(r.daily.precipitation_probability_max[0]||0)+'%<br><span style="color:var(--faint);font-size:11.5px">'+ll.lat.toFixed(2)+'°N, '+ll.lng.toFixed(2)+'°E</span>');
-  }catch(e){pop.setContent('Forecast unavailable here.')}
+    pop.setHTML('<b>'+r0(T(c.temperature_2m))+tU()+'</b>'+describe(c.weather_code)+'<br>Wind '+r0(S(c.wind_speed_10m))+' '+sU()+', gusts '+r0(S(c.wind_gusts_10m))+'<br>Rain chance today '+(r.daily.precipitation_probability_max[0]||0)+'%<br><span style="color:var(--faint);font-size:11.5px">'+ll.lat.toFixed(2)+'°N, '+ll.lng.toFixed(2)+'°E</span>');
+  }catch(e){pop.setHTML('Forecast unavailable here.')}
+}
+
+/* recolor the light vector style into RedZone's dark theme */
+function darkenStyle(m){
+  const water='#0b1a33',land='#111a2b',line='#26324d';
+  m.getStyle().layers.forEach(l=>{
+    const id=l.id;
+    try{
+      if(l.type==='background')m.setPaintProperty(id,'background-color',land);
+      else if(l.type==='fill'){
+        const c=/water/.test(id)?water:/park|wood|grass|green|landcover/.test(id)?'#13202c':/building/.test(id)?'#18223a':/aeroway/.test(id)?'#1a2438':'#121b2c';
+        m.setPaintProperty(id,'fill-color',c);
+      }else if(l.type==='line'){
+        const c=/water/.test(id)?'#123059':/boundary/.test(id)?'#3a4766':/casing/.test(id)?'#0d1524':line;
+        m.setPaintProperty(id,'line-color',c);
+      }else if(l.type==='symbol'){
+        m.setPaintProperty(id,'text-color',/water/.test(id)?'#4f78b5':/city|country|state/.test(id)?'#c4cde0':'#8793ad');
+        m.setPaintProperty(id,'text-halo-color','rgba(9,14,26,.9)');
+      }
+    }catch(e){}
+  });
+  if(m.getLayer('ne2_shaded'))m.setLayoutProperty('ne2_shaded','visibility','none');
+}
+function ringPolygon(lat,lon,km){
+  const pts=[];for(let a=0;a<=64;a++){const t=a/64*2*Math.PI;pts.push([lon+(km/111.32/Math.cos(lat*Math.PI/180))*Math.cos(t),lat+(km/110.57)*Math.sin(t)])}
+  return {type:'Feature',geometry:{type:'LineString',coordinates:pts}};
 }
 
 async function initMap(){
-  if(!window.L||RADAR.map)return;
+  if(!window.maplibregl||RADAR.map)return;
   heatCv=$('#heatCv');partCv=$('#partCv');hctx=heatCv.getContext('2d');pctx=partCv.getContext('2d');
-  const m=RADAR.map=L.map('map',{center:[12.45,122.1],zoom:innerWidth<600?7:8,minZoom:6,maxZoom:11});
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors | Radar © RainViewer | Data © Open-Meteo',maxZoom:19,className:'basetiles'}).addTo(m);
-  L.marker([place.lat,place.lon],{icon:L.divIcon({className:'',html:'<div class="pin"></div>',iconSize:[18,18],iconAnchor:[9,9]}),title:'Odiongan'}).addTo(m);
-  L.circle([place.lat,place.lon],{radius:25000,color:'#ff6b5e',weight:1,dashArray:'4 6',fill:false,opacity:.6}).addTo(m);
+  const m=RADAR.map=new maplibregl.Map({container:'map',style:STYLE_URL,center:[122.1,12.45],zoom:innerWidth<600?6:7,minZoom:5,maxZoom:10.5,attributionControl:false,dragRotate:false,pitchWithRotate:false});
+  m.touchZoomRotate.disableRotation();
+  m.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
+  m.addControl(new maplibregl.AttributionControl({compact:true,customAttribution:'Radar © RainViewer · Data © Open-Meteo'}),'bottom-right');
+  const pin=document.createElement('div');pin.className='pin';pin.title='Odiongan';
+  new maplibregl.Marker({element:pin}).setLngLat([place.lon,place.lat]).addTo(m);
   $('#layers').innerHTML=Object.entries(LAYER_DEFS).map(([id,d])=>'<button role="tab" data-l="'+id+'" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+d.icon+'</svg>'+d.label+'</button>').join('');
   $('#layers').onclick=e=>{const b=e.target.closest('button');if(b)setLayer(b.dataset.l)};
   $('#mplay').innerHTML=PLAY_SVG;$('#mplay').onclick=playPause;
   $('#mslide').oninput=e=>{stopPlay();setTime(+e.target.value)};
   sizeCanvases();
-  m.on('movestart zoomstart',()=>{WX.moving=true;hctx.clearRect(0,0,WX.w,WX.h);clearParticles()});
-  m.on('moveend zoomend',()=>{WX.moving=false;drawHeat();if(WX.layer==='wind')seedParticles()});
-  m.on('click',e=>pointForecast(e.latlng));
-  setLayer(WX.layer);
-  const [g,rv]=await Promise.allSettled([loadGrid(),fetch('https://api.rainviewer.com/public/weather-maps.json').then(r=>r.json())]);
+  m.on('movestart',()=>{WX.moving=true;hctx.clearRect(0,0,WX.w,WX.h);clearParticles()});
+  m.on('moveend',()=>{WX.moving=false;drawHeat();if(WX.layer==='wind')seedParticles()});
+  m.on('click',e=>pointForecast(e.lngLat));
+  setLayer(WX.layer,true);
+  const loaded=new Promise(res=>{m.once('load',res);setTimeout(res,12000)});
+  const [g,rv]=await Promise.allSettled([loadGrid(),fetch('https://api.rainviewer.com/public/weather-maps.json').then(r=>r.json()),loaded]);
+  if(!RADAR.map)return;
+  if(m.isStyleLoaded()||m.getStyle()){
+    try{darkenStyle(m)}catch(e){}
+    try{
+      m.addSource('ring',{type:'geojson',data:ringPolygon(place.lat,place.lon,25)});
+      m.addLayer({id:'ring',type:'line',source:'ring',paint:{'line-color':'#ff6b5e','line-width':1,'line-dasharray':[2,3],'line-opacity':.7}});
+    }catch(e){}
+  }
   if(rv.status==='fulfilled'){
     const j=rv.value;RADAR.frames=j.radar.past;
-    RADAR.layers=RADAR.frames.map(f=>L.tileLayer(j.host+f.path+'/256/{z}/{x}/{y}/2/1_1.png',{opacity:0,zIndex:5,tileSize:256,maxNativeZoom:7}).addTo(m));
+    RADAR.layers=RADAR.frames.map((f,k)=>{
+      const id='radar-'+k;
+      try{
+        m.addSource(id,{type:'raster',tiles:[j.host+f.path+'/256/{z}/{x}/{y}/2/1_1.png'],tileSize:256,maxzoom:7});
+        m.addLayer({id,type:'raster',source:id,paint:{'raster-opacity':0,'raster-fade-duration':0}},m.getLayer('ring')?'ring':undefined);
+      }catch(e){}
+      return id;
+    });
   }
   if(g.status!=='fulfilled'){
     $('#mapHint').textContent='Forecast layers are unavailable right now. The base map and radar still work.';
     WX.layer='radar';
   }
   setLayer(WX.layer,g.status!=='fulfilled');
-  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)stepParticles();
-  setTimeout(()=>{m.invalidateSize();sizeCanvases();drawHeat();seedParticles()},400);
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&!WX.raf)stepParticles();
+  setTimeout(()=>{m.resize();sizeCanvases();drawHeat();seedParticles()},400);
 }
 window.addEventListener('load',initMap);
-addEventListener('resize',()=>{if(!RADAR.map)return;RADAR.map.invalidateSize();sizeCanvases();drawHeat();seedParticles()});
+addEventListener('resize',()=>{if(!RADAR.map)return;RADAR.map.resize();sizeCanvases();drawHeat();seedParticles()});
 setInterval(()=>{
   if(!RADAR.map||document.hidden)return;
-  cancelAnimationFrame(WX.raf);stopPlay();RADAR.map.remove();RADAR.map=null;WX.grid=null;initMap();
+  cancelAnimationFrame(WX.raf);WX.raf=0;stopPlay();RADAR.map.remove();RADAR.map=null;RADAR.layers=[];WX.grid=null;initMap();
 },10*60*1000);
 
 /* ================= boot ================= */
