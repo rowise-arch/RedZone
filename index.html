@@ -188,6 +188,16 @@ footer a{color:var(--mute)}
 .maplibregl-popup-content b{font-family:var(--serif);font-weight:400;font-size:30px;display:block;line-height:1}
 .maplibregl-popup-tip{border-top-color:rgba(10,15,27,.95)!important;border-bottom-color:rgba(10,15,27,.95)!important}
 .maplibregl-popup-close-button{color:var(--mute);font-size:18px;padding:4px 8px}
+.fsbtn{position:absolute;top:12px;right:12px;z-index:501;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:rgba(10,15,27,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--ink);cursor:pointer;display:grid;place-items:center;touch-action:manipulation}
+.layers{padding-right:56px!important}
+.maplibregl-ctrl-top-right{margin-top:60px!important}
+.mapbox.fs{position:fixed;inset:0;z-index:1000;height:100vh;height:100dvh;min-height:0;border-radius:0;border:0}
+.mapbox.fs .layers{top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left))}
+.mapbox.fs .fsbtn{top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right))}
+.mapbox.fs .maptools{bottom:max(26px,calc(env(safe-area-inset-bottom) + 14px));max-width:720px;margin:0 auto}
+.mapbox.fs .maplegend{bottom:max(92px,calc(env(safe-area-inset-bottom) + 80px))}
+#mapPanel.fs-on{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transform:none!important}
+body.fs-lock{overflow:hidden}
 .layers{position:absolute;top:12px;left:12px;right:12px;z-index:500;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px}
 .layers::-webkit-scrollbar{display:none}
 .layers button{flex:none;display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:rgba(10,15,27,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--mute);border-radius:999px;padding:0 16px;height:40px;font-size:13px;font-weight:600;cursor:pointer;transition:all .25s}
@@ -289,6 +299,7 @@ html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
         <canvas id="heatCv" aria-hidden="true"></canvas>
         <canvas id="partCv" aria-hidden="true"></canvas>
         <div class="layers" id="layers" role="tablist" aria-label="Map layers"></div>
+        <button class="fsbtn" id="fsbtn" aria-label="Enter full screen" aria-pressed="false" title="Full screen"></button>
         <div class="maplegend" id="maplegend"></div>
         <div class="maptools"><button id="mplay" aria-label="Play"></button><input id="mslide" type="range" min="0" max="0" value="0" aria-label="Map time"><time id="mtime">—</time></div>
       </div>
@@ -793,8 +804,8 @@ async function loadGrid(){
   WX.grid={times:arr[0].hourly.time,loc:arr.map(o=>o.hourly)};
 }
 function cell(lat,lon){
-  const fi=(lat-GRID.la0)/gdLat,fj=(lon-GRID.lo0)/gdLon;
-  if(fi<0||fj<0||fi>GRID.nla-1||fj>GRID.nlo-1)return null;
+  const fi=Math.max(0,Math.min(GRID.nla-1,(lat-GRID.la0)/gdLat)),fj=Math.max(0,Math.min(GRID.nlo-1,(lon-GRID.lo0)/gdLon));
+  if(Math.abs(lat-12.45)>8||Math.abs(lon-122)>9)return null;
   const i=Math.min(Math.floor(fi),GRID.nla-2),j=Math.min(Math.floor(fj),GRID.nlo-2);
   return {i,j,a:fi-i,b:fj-j};
 }
@@ -997,6 +1008,30 @@ setInterval(()=>{
   if(!RADAR.map||document.hidden)return;
   cancelAnimationFrame(WX.raf);WX.raf=0;stopPlay();RADAR.map.remove();RADAR.map=null;RADAR.layers=[];WX.grid=null;initMap();
 },10*60*1000);
+
+
+/* ================= full screen ================= */
+const FS_IN='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';
+const FS_OUT='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';
+function relayoutMap(){
+  if(!RADAR.map)return;
+  RADAR.map.resize();sizeCanvases();drawHeat();seedParticles();clearParticles();
+}
+function setFullscreen(on){
+  const box=$('.mapbox'),btn=$('#fsbtn');
+  box.classList.toggle('fs',on);$('#mapPanel').classList.toggle('fs-on',on);document.body.classList.toggle('fs-lock',on);
+  btn.innerHTML=on?FS_OUT:FS_IN;btn.setAttribute('aria-pressed',on);btn.setAttribute('aria-label',on?'Exit full screen':'Enter full screen');
+  if(on&&box.requestFullscreen&&!document.fullscreenElement)box.requestFullscreen().catch(()=>{});
+  if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+  setTimeout(relayoutMap,60);setTimeout(relayoutMap,350);
+  if(!on)box.scrollIntoView({block:'center'});
+}
+$('#fsbtn').innerHTML=FS_IN;
+$('#fsbtn').onclick=()=>setFullscreen(!$('.mapbox').classList.contains('fs'));
+document.addEventListener('fullscreenchange',()=>{ // user pressed Esc in native fullscreen
+  if(!document.fullscreenElement&&$('.mapbox').classList.contains('fs'))setFullscreen(false);
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('.mapbox').classList.contains('fs')&&!document.fullscreenElement)setFullscreen(false)});
 
 /* ================= boot ================= */
 resize();
